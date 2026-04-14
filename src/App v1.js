@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const tempMovieData = [
   {
@@ -50,70 +50,19 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const key = "ddf63f48";
-
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
-  const controller = new AbortController();
-
-  async function getMovies() {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${key}&s=${query}`,
-        { signal: controller.signal },
-      );
-
-      if (!res.ok)
-        throw new Error(`Something went wrong. Status: ${res.status}`);
-
-      const data = await res.json();
-
-      if (data.Response === "False") throw new Error(data.Error);
-
-      setMovies(data.Search);
-      setError(null);
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        setError(err.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    if (query.length < 3) {
-      setMovies([]);
-      setError(null);
-      return;
-    }
-
-    getMovies();
-
-    return function () {
-      controller.abort();
-    };
-  }, [query]);
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
 
   return (
     <>
       <NavBar>
-        <Search query={query} setQuery={setQuery} />
+        <Search />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
-          {isLoading && <Loader />}
-          {!isLoading && !error && <MoviesList movies={movies} />}
-          {error && <ErrorMessage message={error} />}
+          <MoviesList movies={movies} />
         </Box>
         <Box>
           <WatchedSummary watched={watched} />
@@ -142,7 +91,9 @@ function Logo() {
   );
 }
 
-function Search({ query, setQuery }) {
+function Search() {
+  const [query, setQuery] = useState("");
+
   return (
     <input
       className="search"
@@ -180,18 +131,6 @@ function Box({ children }) {
   );
 }
 
-function Loader() {
-  return <p className="loader">Loading...</p>;
-}
-
-function ErrorMessage({ message }) {
-  return (
-    <p className="error">
-      <span>❌</span> {message}
-    </p>
-  );
-}
-
 function MoviesList({ movies }) {
   return (
     <ul className="list">
@@ -204,7 +143,7 @@ function MoviesList({ movies }) {
 
 function Movie({ movie }) {
   return (
-    <li >
+    <li>
       <img src={movie.Poster} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
@@ -215,10 +154,6 @@ function Movie({ movie }) {
       </div>
     </li>
   );
-}
-
-function MovieDetails({ id }) {
-  return <div className="details">{id}</div>;
 }
 
 function WatchedSummary({ watched }) {
