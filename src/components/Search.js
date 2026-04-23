@@ -1,10 +1,15 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import useKey from "../hooks/useKey";
 
-export function Search({ query, setQuery }) {
+export function Search({ query, setQuery , closeMovie}) {
   const inputEl = useRef(null);
-  useEffect(() => {
+
+  useKey("Enter", function () {
+    if (document.activeElement === inputEl.current) return;
     inputEl.current.focus();
-  }, []);
+    setQuery("");
+    closeMovie()
+  });
 
   return (
     <input

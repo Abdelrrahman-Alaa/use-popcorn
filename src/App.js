@@ -43,7 +43,11 @@ export default function App() {
   return (
     <>
       <NavBar>
-        <Search query={query} setQuery={setQuery} />
+        <Search
+          query={query}
+          setQuery={setQuery}
+          closeMovie={handleCloseMovie}
+        />
         <NumResults movies={movies} />
       </NavBar>
       <Main>
@@ -114,20 +118,8 @@ function MovieDetails({ id, onCloseMovie, onAddWatched, watched }) {
     onCloseMovie();
   }
 
-  useKey(onCloseMovie);
+  useKey("Escape", onCloseMovie);
 
-/*   useEffect(() => {
-    function callback(e) {
-      if (e.code === "Escape") {
-        onCloseMovie();
-      }
-    }
-    document.addEventListener("keydown", callback);
-    return () => {
-      document.removeEventListener("keydown", callback);
-    };
-  }, [onCloseMovie]);
- */
   useEffect(() => {
     async function getMovieDetails() {
       setIsLoading(true);
